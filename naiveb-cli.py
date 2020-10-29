@@ -93,7 +93,8 @@ class NaiveBayesClassifier:
 def main():
     # Set up the argument parser.
     parser = argparse.ArgumentParser(description="Trains a Naive-Bayes classifier and scores a sentence against it.")
-    parser.add_argument('training_file', metavar='training_file', type=str, help="The file path of the training file. ")
+    parser.add_argument('training_file', metavar='training_file', type=str, help="The file path of your training file.")
+    parser.add_argument('--testing-file', metavar='testing_file', type=str, default=None, help="The file path of your testing file.")
     args = parser.parse_args()
 
     # Initialize and train the classifier.
@@ -101,15 +102,33 @@ def main():
     nbc = NaiveBayesClassifier()
     nbc.train(training_file_path)
 
-    # Prompt for a sentence to score.
-    to_score = input("Enter a string for the classifier to score: ")
-    to_score = to_score.lower()
+    # Check if we're scoring a file or a sentence.
+    if args.testing_file is not None:
+        # Open and read the testing file.
+        f = open(args.testing_file, "r")
+        contents = f.read()
+        lines = contents.splitlines()
+        f.close()
 
-    # Score the sentence.
-    score_dict = nbc.score(to_score)
+        # Score each of the sentences, printing it out with its scores.
+        for line in lines:
+            to_score = line.lower()
+            score_dict = nbc.score(to_score)
 
-    for key in score_dict:
-        print(str(key) + ": " + str(score_dict[key]))
+            print(line)
+            for key in score_dict:
+                print(str(key) + ": " + str(score_dict[key]))
+                
+    else:
+        # Prompt for a sentence to score.
+        to_score = input("Enter a string for the classifier to score: ")
+        to_score = to_score.lower()
+        
+        # Score the sentence.
+        score_dict = nbc.score(to_score)
+        
+        for key in score_dict:
+            print(str(key) + ": " + str(score_dict[key]))
 
 if __name__ == "__main__":
     main()
